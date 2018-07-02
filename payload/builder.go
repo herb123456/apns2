@@ -19,6 +19,7 @@ type aps struct {
 	Sound            string      `json:"sound,omitempty"`
 	ThreadID         string      `json:"thread-id,omitempty"`
 	URLArgs          []string    `json:"url-args,omitempty"`
+	MessageID        string      `json:"message_id,omitempty"`
 }
 
 type alert struct {
@@ -288,4 +289,9 @@ func (a *aps) alert() *alert {
 		a.Alert = &alert{}
 	}
 	return a.Alert.(*alert)
+}
+
+func (p *Payload) MessageID(id string) *Payload {
+	p.aps().MessageID = id
+	return p
 }
