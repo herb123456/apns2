@@ -16,10 +16,10 @@ import (
 
 	"golang.org/x/net/http2"
 
-	apns "github.com/herb123456/apns2"
-	"github.com/herb123456/apns2/certificate"
-	"github.com/herb123456/apns2/token"
+	"github.com/sideshow/apns2/certificate"
+	"github.com/sideshow/apns2/token"
 	"github.com/stretchr/testify/assert"
+	apns "github.com/sideshow/apns2"
 )
 
 // Mocks
@@ -157,6 +157,7 @@ func TestDefaultHeaders(t *testing.T) {
 		assert.Equal(t, "", r.Header.Get("apns-topic"))
 		assert.Equal(t, "", r.Header.Get("apns-expiration"))
 		assert.Equal(t, "", r.Header.Get("thread-id"))
+		assert.Equal(t, "alert", r.Header.Get("apns-push-type"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
@@ -170,12 +171,14 @@ func TestHeaders(t *testing.T) {
 	n.Topic = "com.testapp"
 	n.Priority = 10
 	n.Expiration = time.Now()
+	n.PushType = apns.PushTypeBackground
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, n.ApnsID, r.Header.Get("apns-id"))
 		assert.Equal(t, n.CollapseID, r.Header.Get("apns-collapse-id"))
 		assert.Equal(t, "10", r.Header.Get("apns-priority"))
 		assert.Equal(t, n.Topic, r.Header.Get("apns-topic"))
 		assert.Equal(t, fmt.Sprintf("%v", n.Expiration.Unix()), r.Header.Get("apns-expiration"))
+		assert.Equal(t, "background", r.Header.Get("apns-push-type"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
